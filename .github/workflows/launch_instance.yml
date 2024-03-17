@@ -31,5 +31,5 @@ jobs:
         run: |
           for a in {1..180}; do \
           [ -f /tmp/poweroff ] && exit || \
-          /bin/bash /root/.oci/oci-launch-instance.sh > /dev/null 2>&1 && echo "Lucky!" || echo "Retrying, $a of 180" && export LAUNCH_RETRY=1; done && \
+          sudo /bin/bash /root/.oci/oci-launch-instance.sh > /dev/null 2>&1 && echo "Lucky!" || echo "Retrying, $a of 180" && export LAUNCH_RETRY=1; done && \
           [ $LAUNCH_RETRY == 1 ] && gh workflow run launch_instance.yml
