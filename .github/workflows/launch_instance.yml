@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           for a in {1..180}; do \
-          [ -f /tmp/stop_the_loop ] && exit || \
+          [ -f /tmp/poweroff ] && exit || \
           sudo /root/bin/oci compute instance launch \
           --availability-domain pKfE:PHX-AD-3 \
           --compartment-id ocid1.tenancy.oc1..aaaaaaaaisbcjsiofuqynghhcq4oblia2bj3oxdtjtoggjq2yvpjeaggagdq \
