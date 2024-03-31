@@ -29,7 +29,10 @@ jobs:
       - name: Launch instance
         shell: bash
         run: |
-          for a in {1..180}; do \
-          [ -f /tmp/poweroff ] && exit || \
-          sudo /bin/bash /root/.oci/oci-launch-instance.sh > /dev/null 2>&1 && echo "Lucky!" || echo "Retrying, $a of 180" && export LAUNCH_RETRY=1; done && \
-          [ $LAUNCH_RETRY == 1 ] && gh workflow run launch_instance.yml
+          for a in {1..180}
+            do
+              [ -f /tmp/poweroff ] && exit
+              [ -f /tmp/success ] && (echo "Success!" && exit) || (echo "Retrying, $a of 180")
+              sudo /bin/bash /root/.oci/oci-launch-instance.sh > /tmp/oci-launch-instance.out 2>&1
+          done
+          [ ! -f /tmp/success ] && gh workflow run launch_instance.yml
