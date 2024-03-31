@@ -30,7 +30,7 @@ jobs:
         run: |
           for a in {1..180}
             do
-              [ -f /tmp/poweroff ] && exit
+              [ -f /tmp/poweroff ] && (echo "Stop signal has been received. Stopping instance." && exit)
               [ -f /tmp/success ] && (echo "Success!" && exit) || (echo "Attempting, $a of 180")
               sudo /bin/bash /root/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1
           done
