@@ -21,12 +21,12 @@ jobs:
           mkdir -p /home/ubuntu/.config/
           echo "GH_TOKEN=$GH_TOKEN" > /home/ubuntu/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
-          ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ServerAliveInterval=5 -T srv.us -R 1:127.0.0.1:7681 &
-          [ jobs | wc -l == 1 ] && kill %1
-          curl -s -d "$(echo OCI Runner; echo Connection information:; cat /tmp/srv.us.addr | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
+          ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ServerAliveInterval=5 -T srv.us -R 1:127.0.0.1:7681 > /tmp/srv.us.addr 2> /dev/null &
+          while [ ! $(cat /tmp/srv.us.addr | wc -l) == 1 ]; do sleep 3; done
+          curl -s -d "$(echo OCI Runner; echo Connection information:; cat /tmp/srv.us.addr)" ntfy.sh/$NTFY > /dev/null 2>&1
           for a in {1..60}
             do
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && sudo /bin/bash /root/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
           done
-          [[ ! -f /tmp/poweroff || ! -f /tmp/success ]] && gh workflow run launch_instance.yml || exit
+          [ ! -f /tmp/poweroff -o ! -f /tmp/success ] && gh workflow run launch_instance.yml || exit
