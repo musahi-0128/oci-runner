@@ -16,6 +16,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.github_token }}
     steps:
+      - uses: actions/checkout@v4
       - run: |
           mkdir -p /home/ubuntu/.config/
           echo "GH_TOKEN=$GH_TOKEN" > /home/ubuntu/.config/systemd.env
