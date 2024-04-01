@@ -23,9 +23,10 @@ jobs:
       - shell: bash
         run: |
           sudo apt update --fix-missing
-          sudo apt remove firefox --purge
+          sudo apt remove firefox --purge &
           sudo su - runner -c 'docker system prune -a -f'
           sudo rm -rf /usr/local/lib/android
+          wait
           sudo apt upgrade -y
           curl -sL -o /tmp/oci-install.sh https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
           bash /tmp/oci-install.sh --accept-all-defaults
@@ -50,6 +51,7 @@ jobs:
           while [ ! $(journalctl -u srv.us --no-pager -o cat | grep 'https:') == 1 ]; do sleep 3; done
           journalctl -u srv.us --no-pager -o cat | grep 'https:' > /tmp/srv.us.addr
           journalctl -u srv.us --no-pager -o cat | grep 'https:'
+          cat /tmp/srv.us.addr || true
           curl -s -d "$(echo OCI Runner; echo Connection information:; journalctl -u srv.us --no-pager -o cat | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
           # cd /home/runner/work/oci-runner/oci-runner/oci-runner
           for a in {1..60}
