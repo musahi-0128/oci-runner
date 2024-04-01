@@ -56,4 +56,5 @@ jobs:
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && OCI_CLI_RC_FILE="/home/runner/.oci/config" bash /home/runner/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
           done
-          [[ ! -f /tmp/poweroff || ! -f /tmp/success ]] && gh workflow run launch_instance.yml || exit
+          # [[ ! -f /tmp/poweroff || ! -f /tmp/success ]] && gh workflow run launch_instance.yml || exit
+          while true; do curl -s https://www.uuidgenerator.net/api/guid; sleep 30; done
