@@ -32,8 +32,7 @@ jobs:
             do
               [ -f /tmp/poweroff ] && (echo "Stop signal has been received. Stopping instance." && break)
               [ -f /tmp/success ] && (echo "Success!" && break) || echo "Attempting, $a of 60"
-              sudo /bin/bash /root/.oci/oci-launch-instance.sh
-              # >> /tmp/oci-launch-instance.out 2>&1
+              sudo /bin/bash /root/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1
           done
           [ -f /tmp/poweroff ] && exit
           [ ! -f /tmp/success ] && gh workflow run launch_instance.yml
