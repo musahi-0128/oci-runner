@@ -7,7 +7,7 @@ env:
   DEBIAN_FRONTEND: "noninteractive"
   TZ: "Asia/Jakarta"
   NTFY: ${{ secrets.NTFY }}
-  OCI_CLI_RC_FILE: "/root/.oci/config"
+  OCI_CLI_RC_FILE: "/home/runner/.oci/config"
 jobs:
   launch_instance:
     runs-on: ubuntu-latest
