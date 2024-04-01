@@ -17,6 +17,7 @@ jobs:
         password: ${{ secrets.github_token }}
     steps:
       - name: Launch instance
+        shell: bash
         run: |
           mkdir -p /home/ubuntu/.config/
           echo "GH_TOKEN=$GH_TOKEN" > /home/ubuntu/.config/systemd.env
