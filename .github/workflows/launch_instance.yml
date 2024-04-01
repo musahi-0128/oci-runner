@@ -1,0 +1,61 @@
+name: "OCI runner"
+permissions: write-all
+on:
+  workflow_dispatch:
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  DEBIAN_FRONTEND: "noninteractive"
+  TZ: "Asia/Jakarta"
+  NTFY: ${{ secrets.NTFY }}
+  OCI_CLI_RC_FILE: "/root/.oci/config"
+jobs:
+  launch_instance:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/musahi-0128/oci-docker:main
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.github_token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: oci-runner
+      - uses: actions/checkout@v4
+        with:
+          repository: musahi-0128/oci-docker
+          token: ${{ secrets.GH_PAT }}
+          path: oci-docker
+      - shell: bash
+        run: |
+          sudo apt update --fix-missing
+          sudo apt remove firefox
+          sudo su - runner -c 'docker system prune -a -f'
+          sudo su - runner -c 'podman system prune -a -f'
+          sudo rm -rf /usr/local/lib/android
+          sudo apt upgrade -y
+          sudo apt install -y curl git htop jq less nano openssh-client python3-pip sudo tmux
+          curl -s https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s --accept-all-defaults
+          apt autoremove --purge
+          apt clean
+          sudo curl -sL -o /usr/local/bin/ttyd $(curl -s 'https://api.github.com/repos/tsl0922/ttyd/releases/latest' | jq -r '.assets[] | select(.name|contains("x86_64")).browser_download_url')
+          sudo chmod a+x /usr/local/bin/ttyd
+          mkdir ~/.oci
+          cp oci-docker/oci/* ~/.oci/
+          cp oci-docker/ssh/* ~/.ssh/
+          chmod 600 ~/.ssh/
+          ~/bin/oci setup repair-file-permissions --file ~/.oci/config
+          ~/bin/oci setup repair-file-permissions --file ~/.ssh/id_rsa
+          sed -i 's/\/root/~/g' ~/.oci/config
+          sed -i 's/\/root/\/home\/runner/g' ~/.oci/oci-launch-instance.sh
+          sudo cp oci-docker/systemd/* /etc/systemd/system/
+          echo "GH_TOKEN=$GH_TOKEN" > ~/.config/systemd.env
+          sudo systemctl enable --now ttyd.service srv.us.service
+          while [ ! $(sudo journalctl -u srv.us | grep 'https:') == 1 ]; do sleep 3; done
+          curl -s -d "$(echo OCI Runner; echo Connection information:; sudo journalctl -u srv.us | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
+          for a in {1..60}
+            do
+              [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
+              [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && bash /root/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
+          done
+          [ ! -f /tmp/poweroff -o ! -f /tmp/success ] && gh workflow run launch_instance.yml || exit
