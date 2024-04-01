@@ -49,9 +49,7 @@ jobs:
           sudo systemctl enable --now ttyd.service srv.us.service
           while [ ! $(journalctl -u srv.us --no-pager -o cat | grep 'https:') == 1 ]; do sleep 3; done
           journalctl -u srv.us --no-pager -o cat | grep 'https:' > /tmp/srv.us.addr
-          curl -s -d "$(echo OCI Runner
-            echo Connection information:
-            cat /tmp/srv.us.addr)" ntfy.sh/$NTFY > /dev/null 2>&1
+          curl -s -d "$(echo OCI Runner; echo Connection information:; cat /tmp/srv.us.addr)" ntfy.sh/$NTFY > /dev/null 2>&1
           cd /home/runner/work/oci-runner/oci-runner/oci-runner
           for a in {1..60}
             do
