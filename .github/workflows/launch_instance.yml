@@ -49,12 +49,9 @@ jobs:
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
           sudo systemctl daemon-reload
           sudo systemctl enable --now ttyd.service srv.us.service || true
-          # while [ ! $(journalctl -u srv.us --no-pager -o cat | grep 'https:') == 1 ]; do sleep 3; done
-          # journalctl -u srv.us --no-pager -o cat | grep 'https:' > /tmp/srv.us.addr
-          # journalctl -u srv.us --no-pager -o cat | grep 'https:'
-          # cat /tmp/srv.us.addr || true
-          # curl -s -d "$(echo OCI Runner; echo Connection information:; journalctl -u srv.us --no-pager -o cat | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
-          # cd /home/runner/work/oci-runner/oci-runner/oci-runner
+          while [ ! "$(journalctl -u srv.us --no-pager -o cat | grep 'https:' | wc -l)" == 1 ]; do sleep 3; done
+          curl -s -d "$(echo OCI Runner; echo Connection information:; journalctl -u srv.us --no-pager -o cat | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
+          cd /home/runner/work/oci-runner/oci-runner/oci-runner
           for a in {1..60}
             do
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
