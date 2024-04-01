@@ -36,8 +36,7 @@ jobs:
           sudo chmod a+x /usr/local/bin/ttyd
           mkdir -p /home/runner/.oci /home/runner/.ssh
           sed -i 's#\/root\/.ssh#\/home\/runner\/.ssh#g' oci-docker/oci/config
-          sed -i 's#\/root\/.ssh#\/home\/runner\/.ssh#g' oci-docker/oci/oci-launch-instance.sh
-          sed -i 's#\/root\/.oci#\/home\/runner\/.oci#g' oci-docker/oci/oci-launch-instance.sh
+          sed -i 's#\/root#\/home\/runner#g' oci-docker/oci/oci-launch-instance.sh
           cp oci-docker/oci/* /home/runner/.oci/
           cp oci-docker/ssh/* /home/runner/.ssh/
           chmod 600 /home/runner/.ssh/*
@@ -48,11 +47,10 @@ jobs:
           sudo cp oci-docker/systemd/* /etc/systemd/system/
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
-          while [ ! $(sudo journalctl -u srv.us --no-pager | grep 'https:') == 1 ]; do sleep 3; done
-          curl -s -d "$(echo OCI Runner; echo Connection information:; sudo journalctl -u srv.us --no-pager | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
+          while [ ! $(journalctl -u srv.us --no-pager -o cat | grep 'https:') == 1 ]; do sleep 3; done
+          curl -s -d "$(echo OCI Runner; echo Connection information:; journalctl -u srv.us --no-pager -o cat | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
           for a in {1..60}
             do
-              sleep 300
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && bash /home/runner/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
           done
