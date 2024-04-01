@@ -3,9 +3,9 @@ permissions: write-all
 on:
   workflow_dispatch:
 env:
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    NTFY: ${{ secrets.NTFY }}
-    OCI_CLI_RC_FILE: "/root/.oci/config"
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NTFY: ${{ secrets.NTFY }}
+  OCI_CLI_RC_FILE: "/root/.oci/config"
 jobs:
   launch_instance:
     runs-on: ubuntu-latest
@@ -17,7 +17,6 @@ jobs:
         password: ${{ secrets.github_token }}
     steps:
       - name: Launch instance
-        shell: bash
         run: |
           mkdir -p /home/ubuntu/.config/
           echo "GH_TOKEN=$GH_TOKEN" > /home/ubuntu/.config/systemd.env
