@@ -16,9 +16,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.github_token }}
     steps:
-      - name: Launch instance
-        shell: bash
-        run: |
+      - run: |
           mkdir -p /home/ubuntu/.config/
           echo "GH_TOKEN=$GH_TOKEN" > /home/ubuntu/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
@@ -29,3 +27,4 @@ jobs:
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && sudo /bin/bash /root/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
           done
           [ ! -f /tmp/poweroff -o ! -f /tmp/success ] && gh workflow run launch_instance.yml || exit
+        shell: bash
