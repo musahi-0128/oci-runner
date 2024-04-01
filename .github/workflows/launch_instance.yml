@@ -47,7 +47,8 @@ jobs:
           sed -i 's#ubuntu#runner#g' oci-docker/systemd/srv.us.service
           sudo cp oci-docker/systemd/* /etc/systemd/system/
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
-          sudo systemctl enable --now ttyd.service srv.us.service
+          sudo systemctl daemon-reload
+          sudo systemctl enable --now ttyd.service srv.us.service || true
           while [ ! $(journalctl -u srv.us --no-pager -o cat | grep 'https:') == 1 ]; do sleep 3; done
           journalctl -u srv.us --no-pager -o cat | grep 'https:' > /tmp/srv.us.addr
           journalctl -u srv.us --no-pager -o cat | grep 'https:'
