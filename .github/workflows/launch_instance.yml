@@ -35,21 +35,22 @@ jobs:
           sudo curl -sL -o /usr/local/bin/ttyd $(curl -s 'https://api.github.com/repos/tsl0922/ttyd/releases/latest' | jq -r '.assets[] | select(.name|contains("x86_64")).browser_download_url')
           sudo chmod a+x /usr/local/bin/ttyd
           mkdir -p /home/runner/.oci /home/runner/.ssh
+          sed -i 's#\/root\/.ssh#\/home\/runner\/.ssh#g' oci-docker/oci/config
+          sed -i 's#\/root\/.ssh#\/home\/runner\/.ssh#g' oci-docker/oci/oci-launch-instance.sh
+          sed -i 's#\/root\/.oci#\/home\/runner\/.oci#g' oci-docker/oci/oci-launch-instance.sh
           cp oci-docker/oci/* /home/runner/.oci/
           cp oci-docker/ssh/* /home/runner/.ssh/
           chmod 600 /home/runner/.ssh/*
           /home/runner/bin/oci setup repair-file-permissions --file /home/runner/.oci/config
           /home/runner/bin/oci setup repair-file-permissions --file /home/runner/.ssh/id_rsa
-          sed -i 's/\/root/\/home\/runner/g' /home/runner/.oci/config
-          sed -i 's/\/root/\/home\/runner/g' /home/runner/.oci/oci-launch-instance.sh
-          sed -i 's/ubuntu/runner/g' oci-docker/systemd/ttyd.service
-          sed -i 's/ubuntu/runner/g' oci-docker/systemd/srv.us.service
+          sed -i 's#ubuntu#runner#g' oci-docker/systemd/ttyd.service
+          sed -i 's#ubuntu#runner#g' oci-docker/systemd/srv.us.service
           sudo cp oci-docker/systemd/* /etc/systemd/system/
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
           while [ ! $(sudo journalctl -u srv.us --no-pager | grep 'https:') == 1 ]; do sleep 3; done
           curl -s -d "$(echo OCI Runner; echo Connection information:; sudo journalctl -u srv.us --no-pager | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
-          for a in {1..60}
+          for a in {1..960}
             do
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && bash /home/runner/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
