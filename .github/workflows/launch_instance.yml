@@ -42,6 +42,8 @@ jobs:
           /home/runner/bin/oci setup repair-file-permissions --file /home/runner/.ssh/id_rsa
           sed -i 's/\/root/\/home\/runner/g' /home/runner/.oci/config
           sed -i 's/\/root/\/home\/runner/g' /home/runner/.oci/oci-launch-instance.sh
+          sed -i 's/ubuntu/runner/g' oci-docker/systemd/ttyd.service
+          sed -i 's/ubuntu/runner/g' oci-docker/systemd/srv.us.service
           sudo cp oci-docker/systemd/* /etc/systemd/system/
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
