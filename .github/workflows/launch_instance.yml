@@ -47,8 +47,8 @@ jobs:
           sudo cp oci-docker/systemd/* /etc/systemd/system/
           echo "GH_TOKEN=$GH_TOKEN" > /home/runner/.config/systemd.env
           sudo systemctl enable --now ttyd.service srv.us.service
-          while [ ! $(sudo journalctl -u srv.us | grep 'https:') == 1 ]; do sleep 3; done
-          curl -s -d "$(echo OCI Runner; echo Connection information:; sudo journalctl -u srv.us | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
+          while [ ! $(sudo journalctl -u srv.us --no-pager | grep 'https:') == 1 ]; do sleep 3; done
+          curl -s -d "$(echo OCI Runner; echo Connection information:; sudo journalctl -u srv.us --no-pager | grep 'https:')" ntfy.sh/$NTFY > /dev/null 2>&1
           for a in {1..60}
             do
               [ -f /tmp/poweroff ] && echo "Stop signal has been received. Stopping instance." && exit
