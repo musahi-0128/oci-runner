@@ -55,3 +55,5 @@ jobs:
               [ -f /tmp/success ] && echo "Congratulation! you have succesfully get an instance running." && exit || (echo "Attempting, $a of 60" && bash /home/runner/.oci/oci-launch-instance.sh >> /tmp/oci-launch-instance.out 2>&1)
           done
           [ ! -f /tmp/poweroff -o ! -f /tmp/success ] && gh workflow run launch_instance.yml || exit
+          while [ ! -f /tmp/poweroff ]; do curl https://www.uuidgenerator.net/api/guid; sleep 30; done
+          exit
