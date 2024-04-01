@@ -1,4 +1,4 @@
-name: "OCI runner"
+name: "OCI runner with docker image"
 permissions: write-all
 on:
   workflow_dispatch:
